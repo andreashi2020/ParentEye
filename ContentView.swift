@@ -1,42 +1,33 @@
 import SwiftUI
 import MapKit
-//import SwiftSoup
-//import GoogleMaps
-//import GooglePlaces
 
-// Activity Model to represent nearby activities, conforming to Decodable
-struct Activity: Decodable, Equatable {
-    let eventTitle: String?
-    var eventDate: String?
-    var eventLocation: String?
-    var latitude: Double?
-    var longitude: Double?
-    var linkUrl: String
-}
-
-// Custom annotation class to hold activity details
-class ActivityAnnotation: NSObject, MKAnnotation {
+// Custom annotation class to hold event details
+class EventAnnotation: NSObject, MKAnnotation {
     let title: String?
     let subtitle: String?
     let coordinate: CLLocationCoordinate2D
     let linkUrl: String
     
-    init(activity: Activity) {
-        self.title = activity.eventTitle
-        self.subtitle = activity.linkUrl
-        self.coordinate = CLLocationCoordinate2D(latitude: activity.latitude ?? 0.0, longitude: activity.longitude ?? 0.0)
-        self.linkUrl = activity.linkUrl
+    init(event: Event) {
+        // Safely unwrap eventDate and eventTime, and provide "N/A" as a fallback if they are nil
+        let eventDate = event.eventDate ?? "N/A"
+        let eventTime = event.eventTime ?? "N/A"
+        
+        self.title = event.eventTitle
+        self.subtitle = eventDate + " " + eventTime
+        
+        self.coordinate = CLLocationCoordinate2D(latitude: event.locationLat ?? 0.0, longitude: event.locationLng ?? 0.0)
+        self.linkUrl = event.linkUrl ?? ""
         super.init()
     }
 }
 
-// MapView to show activities
+// MapView to show events
 struct MapView: UIViewRepresentable {
-    @Binding var activities: [Activity]
+    @Binding var events: [Event]
     @Binding var region: MKCoordinateRegion
-    @Binding var selectedActivity: Activity?
+    @Binding var selectedEvent: Event?
 
-    
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
     }
@@ -49,10 +40,16 @@ struct MapView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: MKMapView, context: Context) {
+        // Check if the region center has changed by comparing latitude and longitude
+        if region.center.latitude != uiView.region.center.latitude ||
+            region.center.longitude != uiView.region.center.longitude {
+            uiView.setRegion(region, animated: true)
+        }
+        
         uiView.removeAnnotations(uiView.annotations)
-        let annotations = activities.map { ActivityAnnotation(activity: $0) }
+        let annotations = events.map { EventAnnotation(event: $0) }
         uiView.addAnnotations(annotations)
-        uiView.setRegion(region, animated: true)
+        
     }
     
     // Coordinator class to handle MapView interactions
@@ -64,53 +61,85 @@ struct MapView: UIViewRepresentable {
         }
 
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-            guard let annotation = view.annotation as? ActivityAnnotation else { return }
-            print("Annotation selected: \(annotation.title ?? "No Title")") // Add this line for debugging
-            
-            print("Activities count: \(parent.activities.count)")
-            for activity in parent.activities {
-                print("Activity linkUrl: \(activity.linkUrl)")
-            }
-            
-            if let activity = parent.activities.first(where: { $0.linkUrl == annotation.linkUrl }) {
-                parent.selectedActivity = activity
-                print("selectedActivity set to: \(parent.selectedActivity?.eventTitle ?? "None")") // Log the selected activity
-            } else {
-                print("No matching activity found for linkUrl: \(annotation.linkUrl)")
+            guard let annotation = view.annotation as? EventAnnotation else { return }
+            if let event = parent.events.first(where: { $0.linkUrl == annotation.linkUrl }) {
+                parent.selectedEvent = event
             }
         }
         
-        // Deselect annotation when the user taps outside
         func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
-            parent.selectedActivity = nil
+            parent.selectedEvent = nil
         }
     }
 }
 
 // ContentView with input box and buttons
 struct ContentView: View {
+    @StateObject private var eventViewModel = EventViewModel()  // Initialize EventViewModel
     @State private var zipCode: String = ""
-    @State private var activities: [Activity] = []
-    @State private var region: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 47.6097, longitude: -122.3331), latitudinalMeters: 10000, longitudinalMeters: 10000)
+    @State private var events: [Event] = []
+    @State private var region: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 47.6061, longitude: -122.3328), latitudinalMeters: 10000, longitudinalMeters: 10000)
     @State private var successfulLocationsCount: Int = 0
-    @State private var selectedActivity: Activity? = nil
+    @State private var selectedEvent: Event? {
+        didSet {
+            // Update the region whenever the selected event changes
+            if let event = selectedEvent, let lat = event.locationLat, let lng = event.locationLng {
+                region.center = CLLocationCoordinate2D(latitude: lat, longitude: lng)
+                region.span = MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02) // Adjust zoom level as desired
+            }
+        }
+    }
     @State private var selectedDate: Date = Date()
     
-
     var body: some View {
         ZStack {
-            MapView(activities: $activities, region: $region, selectedActivity: $selectedActivity)
+            Color.white
+                .edgesIgnoringSafeArea(.all)
+            
+            MapView(events: $events, region: $region, selectedEvent: $selectedEvent)
                 .edgesIgnoringSafeArea(.all)
                 .frame(height: 400)
+                
             
-            VStack {
-                TextField("Enter Zip Code", text: $zipCode)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 20)
-                    .background(Color(red: 0/255, green: 180/255, blue: 205/255))
-                    .foregroundColor(.black)
-                    .cornerRadius(5)
+            VStack (spacing: 16) {
+//                TextField("Enter Zip Code", text: $zipCode)
+//                    .textFieldStyle(RoundedBorderTextFieldStyle())
+//                    .multilineTextAlignment(.center)
+//                    .padding(.top, 20)
+//                    .background(Color(red: 0/255, green: 180/255, blue: 205/255))
+//                    .background(Color.blue)
+//                    .foregroundColor(.black)
+//                    .cornerRadius(5)
+                
+                
+                HStack {
+                    // Label for the Zip Code input
+                    Text("Enter Zip Code:")
+                        .foregroundColor(.blue)
+                        .fontWeight(.bold)
+                        .padding(.trailing, 2)
+                    
+//                        // Background for the text field
+//                        RoundedRectangle(cornerRadius: 5)
+//                            .fill(Color.white) // Inner background color
+//                            .frame(height: 44) // Height for the text field
+                        
+                    TextField("", text: $zipCode) // No default text
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.white) // Text color
+                        .padding(5)
+                        .background(Color(red: 0/255, green: 180/255, blue: 205/255))
+                        .cornerRadius(6)
+                        .frame(width:130, height: 40)
+                        .shadow(radius: 2)
+                        
+                    
+
+                }
+                .padding(.horizontal) // Outer padding for the HStack
+
+
+                
                 
                 HStack {
                     Text("Select Date:")
@@ -119,24 +148,27 @@ struct ContentView: View {
                         .padding(.trailing, 10)
                     DatePicker("", selection: $selectedDate, displayedComponents: .date)
                         .labelsHidden()
-                        .padding(5)
+                        .padding(0)
                         .background(Color(red: 0/255, green: 180/255, blue: 205/255))
                         .cornerRadius(5)
                         .accentColor(.blue)
+                        .frame(height:40)
+                        .shadow(radius: 2)
                 }
                 .padding(.horizontal)
 
                 Button(action: {
-                    fetchActivities()
-                    print("Button pressed: Fetching activities...")
+                    fetchEvents()
                 }) {
-                    Text("Find Nearby Activities")
+                    Text("Find Nearby Events")
                         .fontWeight(.bold)
-                        .padding()
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 25)
                         .background(Color(red: 0/255, green: 180/255, blue: 205/255))
-                        .foregroundColor(.black)
+                        .foregroundColor(.white)
                         .cornerRadius(5)
                         .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2)
+                        
                 }
                 .padding(.horizontal)
 
@@ -144,164 +176,72 @@ struct ContentView: View {
             }
             .padding()
             
-//            if let activity = selectedActivity {
-//                VStack {
-//                    Spacer()
-//                    VStack {
-//                        Text(activity.eventTitle ?? "No Title")
-//                            .font(.headline)
-//                        Text(activity.eventDate ?? "No Date")
-//                            .font(.subheadline)
-//                        Text(activity.eventLocation ?? "No Location")
-//                            .font(.subheadline)
-//                        if let url = URL(string: activity.linkUrl) {
-//                            Link("Event Link", destination: url)
-//                                .font(.subheadline)
-//                                .foregroundColor(.blue)
-//                        }
-//                    }
-//                    .padding()
-//                    .background(Color.white)
-//                    .cornerRadius(10)
-//                    .shadow(radius: 5)
-//                    .padding()
-//                }
-//                .transition(.move(edge: .bottom))
-//                .animation(.easeInOut)
-//            }
-            
-            // Activity Detail Panel
-            if let activity = selectedActivity {
-                ActivityDetailView(activity: activity)
+            if let event = selectedEvent {
+                EventDetailView(event: event)
                     .transition(.move(edge: .bottom))
-                    .animation(.easeInOut(duration: 0.3), value: selectedActivity)
-            }
-//            VStack {
-//                Spacer()
-//                HStack {
-//                    Spacer()
-//                    VStack {
-//                        Button(action: zoomIn) {
-//                            Text("+")
-//                                .font(.largeTitle)
-//                                .padding()
-//                                .background(Color.white)
-//                                .clipShape(Circle())
-//                                .shadow(radius: 5)
-//                        }
-//                        .padding(.bottom, 10)
-//
-//                        Button(action: zoomOut) {
-//                            Text("-")
-//                                .font(.largeTitle)
-//                                .padding()
-//                                .background(Color.white)
-//                                .clipShape(Circle())
-//                                .shadow(radius: 5)
-//                        }
-//                    }
-//                }
-//            }
-        }
-        .onChange(of: selectedActivity) { oldActivity, newActivity in
-            if oldActivity != newActivity {
-                print("selectedActivity updated from: \(oldActivity?.eventTitle ?? "None") to: \(newActivity?.eventTitle ?? "None")")
+                    .animation(.easeInOut(duration: 0.3), value: selectedEvent)
             }
         }
-
-
     }
 
-    func fetchActivities() {
-       
-        guard let dataFileURL = Bundle.main.url(forResource: "data", withExtension: "json") else {
-            print("data.json file not found.")
-            return
-        }
-
+    // Modify fetchEvents to use backend API data
+    func fetchEvents() {
+        // Get coordinates from the zip code
         let geocoder = CLGeocoder()
         geocoder.geocodeAddressString(zipCode) { placemarks, error in
             if let placemark = placemarks?.first, let location = placemark.location {
                 region.center = location.coordinate
                 region.span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+
+                // Convert selected date to the required format
+                let formatter = DateFormatter()
+                formatter.dateFormat = "EEEE, MMM. dd" // Format for "Friday, Nov. 15"
+                let formattedDate = formatter.string(from: selectedDate)
+                
+                // Use location coordinates for backend fetch
+                eventViewModel.fetchEvents(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, specificDate: formattedDate)
+                
+                // Observe updates from the eventViewModel
+                self.events = eventViewModel.events
+
+                // Filter events by the selected date
+                self.events = self.events.filter { event in
+                    let calendar = Calendar.current
+                    let eventDate = event.eventDate ?? ""
+                    return eventDate == formattedDate
+                }
+                
+                self.successfulLocationsCount = self.events.count
             } else {
                 print("Geocoding failed for zip code: \(error?.localizedDescription ?? "Unknown error")")
             }
         }
-
-        do {
-            let jsonData = try Data(contentsOf: dataFileURL)
-            var decodedActivities = try JSONDecoder().decode([Activity].self, from: jsonData)
-
-            let dateOnlyFormatter = DateFormatter()
-            dateOnlyFormatter.dateFormat = "EEEE, MMM. d"
-            let selectedDateWithoutTime = dateOnlyFormatter.string(from: selectedDate)
-
-            decodedActivities = decodedActivities.filter { activity in
-                let eventDateComponents = activity.eventDate?.components(separatedBy: "\n").first?.trimmingCharacters(in: .whitespacesAndNewlines)
-                return eventDateComponents == selectedDateWithoutTime
-            }
-
-            var geocodingResults: [Activity] = []
-            let group = DispatchGroup()
-            
-            for activity in decodedActivities {
-                group.enter()
-                if let locationName = activity.eventLocation {
-                    let geocoder = CLGeocoder()
-                    geocoder.geocodeAddressString(locationName) { placemarks, error in
-                        if let placemark = placemarks?.first, let location = placemark.location {
-                            var geocodedActivity = activity
-                            geocodedActivity.latitude = location.coordinate.latitude
-                            geocodedActivity.longitude = location.coordinate.longitude
-                            geocodingResults.append(geocodedActivity)
-                        }
-                        group.leave()
-                    }
-                } else {
-                    geocodingResults.append(activity)
-                    group.leave()
-                }
-            }
-
-            group.notify(queue: .main) {
-                self.activities = geocodingResults
-                self.successfulLocationsCount = geocodingResults.count
-            }
-        } catch {
-            print("Error decoding JSON: \(error)")
-        }
-    }
-
-    func zoomIn() {
-        let zoomFactor: CLLocationDistance = 5000
-        region = MKCoordinateRegion(center: region.center, latitudinalMeters: zoomFactor, longitudinalMeters: zoomFactor)
-    }
-
-    func zoomOut() {
-        let zoomFactor: CLLocationDistance = 20000
-        region = MKCoordinateRegion(center: region.center, latitudinalMeters: zoomFactor, longitudinalMeters: zoomFactor)
     }
 }
 
-struct ActivityDetailView: View {
-    let activity: Activity
+struct EventDetailView: View {
+    let event: Event
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(activity.eventTitle ?? "Untitled Event")
+                    Text(event.eventTitle)
                         .font(.headline)
                         .lineLimit(2)
                     
-                    if let date = activity.eventDate {
+                    if let date = event.eventDate {
                         Label(date, systemImage: "calendar")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
                     
-                    if let location = activity.eventLocation {
+                    if let time = event.eventTime {
+                        Label(time, systemImage: "clock")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    if let location = event.eventLocation {
                         Label(location, systemImage: "mappin.circle")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
@@ -310,7 +250,7 @@ struct ActivityDetailView: View {
                 
                 Spacer()
                 
-                if let url = URL(string: activity.linkUrl) {
+                if let urlString = event.linkUrl, let url = URL(string: "https://www.parentmap.com/" + urlString) {
                     Link(destination: url) {
                         Image(systemName: "arrow.right.circle.fill")
                             .font(.title2)
@@ -322,7 +262,7 @@ struct ActivityDetailView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(UIColor.systemBackground))
+                .fill(Color(red: 0/255, green: 180/255, blue: 205/255))
                 .shadow(radius: 5)
         )
         .padding(.top, 550)
