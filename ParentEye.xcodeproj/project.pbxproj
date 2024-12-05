@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DD389CC72CBDAB1900D85324 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = DD389CC62CBDAB1900D85324 /* SwiftSoup */; };
+		DD389D252CC4623D00D85324 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = DD389D242CC4623D00D85324 /* GoogleMaps */; };
+		DD389D282CC4648A00D85324 /* GooglePlaces in Frameworks */ = {isa = PBXBuildFile; productRef = DD389D272CC4648A00D85324 /* GooglePlaces */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		DDA0FE8D2CBD8CF000E87836 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,9 +35,22 @@
 		DDA0FE962CBD8CF000E87836 /* ParentEyeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ParentEyeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		DD389CC42CBDAA0800D85324 /* Exceptions for "ParentEye" folder in "ParentEye" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			platformFiltersByRelativePath = {
+				ContentView.swift = (ios, );
+			};
+			target = DDA0FE7B2CBD8CEE00E87836 /* ParentEye */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DDA0FE7E2CBD8CEE00E87836 /* ParentEye */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DD389CC42CBDAA0800D85324 /* Exceptions for "ParentEye" folder in "ParentEye" target */,
+			);
 			path = ParentEye;
 			sourceTree = "<group>";
 		};
@@ -52,6 +71,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD389D282CC4648A00D85324 /* GooglePlaces in Frameworks */,
+				DD389D252CC4623D00D85324 /* GoogleMaps in Frameworks */,
+				DD389CC72CBDAB1900D85324 /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,12 +94,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		DD389CC52CBDAB1900D85324 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		DDA0FE732CBD8CEE00E87836 = {
 			isa = PBXGroup;
 			children = (
 				DDA0FE7E2CBD8CEE00E87836 /* ParentEye */,
 				DDA0FE8F2CBD8CF000E87836 /* ParentEyeTests */,
 				DDA0FE992CBD8CF000E87836 /* ParentEyeUITests */,
+				DD389CC52CBDAB1900D85324 /* Frameworks */,
 				DDA0FE7D2CBD8CEE00E87836 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,6 +142,9 @@
 			);
 			name = ParentEye;
 			packageProductDependencies = (
+				DD389CC62CBDAB1900D85324 /* SwiftSoup */,
+				DD389D242CC4623D00D85324 /* GoogleMaps */,
+				DD389D272CC4648A00D85324 /* GooglePlaces */,
 			);
 			productName = ParentEye;
 			productReference = DDA0FE7C2CBD8CEE00E87836 /* ParentEye.app */;
@@ -195,6 +228,11 @@
 			);
 			mainGroup = DDA0FE732CBD8CEE00E87836;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				DDA0FEA92CBDA49D00E87836 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+				DD389D232CC4623D00D85324 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */,
+				DD389D262CC4648A00D85324 /* XCRemoteSwiftPackageReference "ios-places-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DDA0FE7D2CBD8CEE00E87836 /* Products */;
 			projectDirPath = "";
@@ -394,8 +432,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"ParentEye/Preview Content\"";
+				DEVELOPMENT_TEAM = 4XPH9JT6L6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -408,7 +447,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = BlinkDagger.ParentEye;
+				PRODUCT_BUNDLE_IDENTIFIER = com.BlinkDagger.ParentEye;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -422,8 +461,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"ParentEye/Preview Content\"";
+				DEVELOPMENT_TEAM = 4XPH9JT6L6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -436,7 +476,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = BlinkDagger.ParentEye;
+				PRODUCT_BUNDLE_IDENTIFIER = com.BlinkDagger.ParentEye;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -552,6 +592,51 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DD389D232CC4623D00D85324 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googlemaps/ios-maps-sdk";
+			requirement = {
+				kind = exactVersion;
+				version = 9.1.1;
+			};
+		};
+		DD389D262CC4648A00D85324 /* XCRemoteSwiftPackageReference "ios-places-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googlemaps/ios-places-sdk";
+			requirement = {
+				kind = exactVersion;
+				version = 9.1.0;
+			};
+		};
+		DDA0FEA92CBDA49D00E87836 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scinfu/SwiftSoup";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.7.5;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DD389CC62CBDAB1900D85324 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DDA0FEA92CBDA49D00E87836 /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+		DD389D242CC4623D00D85324 /* GoogleMaps */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DD389D232CC4623D00D85324 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */;
+			productName = GoogleMaps;
+		};
+		DD389D272CC4648A00D85324 /* GooglePlaces */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DD389D262CC4648A00D85324 /* XCRemoteSwiftPackageReference "ios-places-sdk" */;
+			productName = GooglePlaces;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = DDA0FE742CBD8CEE00E87836 /* Project object */;
 }

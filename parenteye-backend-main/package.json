@@ -1,0 +1,24 @@
+{
+	"name": "parenteye-backend",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"start": "wrangler dev",
+		"test": "vitest",
+		"cf-typegen": "wrangler types",
+		"db:list-table": "wrangler d1 execute prod-parenteye-backend --command \"SELECT name FROM sqlite_schema WHERE type='table' ORDER BY name;\"",
+		"db:restore": "wrangler d1 execute prod-parenteye-backend --file=./backup.sql",
+		"db:test": "wrangler d1 execute prod-parenteye-backend --file=./test.sql",
+		"db:add-index": "wrangler d1 execute prod-parenteye-backend --command 'CREATE INDEX idx_eventTimestamp ON Events (eventTimestamp);'"
+	},
+	"devDependencies": {
+		"@cloudflare/vitest-pool-workers": "^0.5.2",
+		"@cloudflare/workers-types": "^4.20241022.0",
+		"typescript": "^5.5.2",
+		"vitest": "2.0.5",
+		"wrangler": "^3.60.3"
+	},
+	"packageManager": "pnpm@9.7.1+sha512.faf344af2d6ca65c4c5c8c2224ea77a81a5e8859cbc4e06b1511ddce2f0151512431dd19e6aff31f2c6a8f5f2aced9bd2273e1fed7dd4de1868984059d2c4247"
+}
